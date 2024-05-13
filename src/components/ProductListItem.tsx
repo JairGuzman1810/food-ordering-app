@@ -14,7 +14,7 @@ type ProductListItemProps = {
 const ProductListItem = ({ product }: ProductListItemProps) => {
   return (
     //Navigate specific product
-    <Link href={`/${product.id}`} asChild>
+    <Link href={`/menu/${product.id}`} asChild>
       <TouchableOpacity style={styles.container}>
         <Image
           style={styles.image}
