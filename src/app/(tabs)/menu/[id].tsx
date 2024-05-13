@@ -4,11 +4,13 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import products from "@/assets/data/products";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
+import Button from "@/src/components/Button";
 
 const sizes = ["S", "M", "L", "XL"];
 
 const ProductDetailsScreen = () => {
   const [selectedSize, setSelectedSize] = useState("M");
+  const [isLoading, setIsLoading] = useState(false);
   const { id } = useLocalSearchParams();
   //Obtain product of dummy data by id
   const product = products.find((p) => p.id.toString() === id);
@@ -16,6 +18,15 @@ const ProductDetailsScreen = () => {
   if (!product) {
     return <Text>Product not found</Text>;
   }
+
+  const addToCart = () => {
+    setIsLoading(true);
+    // Perform your loading action here
+    // After the action is complete, set isLoading back to false
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // Example: Simulating loading for 2 seconds
+  };
 
   return (
     <View style={styles.container}>
@@ -51,8 +62,8 @@ const ProductDetailsScreen = () => {
           </TouchableOpacity>
         ))}
       </View>
-
       <Text style={styles.price}>${product.price}</Text>
+      <Button text="Add to cart" isLoading={isLoading} onPress={addToCart} />
     </View>
   );
 };
@@ -89,5 +100,6 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 18,
     fontWeight: "600",
+    marginTop: "auto",
   },
 });
