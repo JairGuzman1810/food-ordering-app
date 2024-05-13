@@ -33,6 +33,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     padding: 10,
     borderRadius: 10,
+    flex: 1,
+    //If numbers of products its odd then, only 50% of width
+    maxWidth: "50%",
   },
   image: {
     width: "100%",
