@@ -1,5 +1,5 @@
-import { Image, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import products from "@/assets/data/products";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
@@ -8,6 +8,7 @@ import Colors from "@/src/constants/Colors";
 const sizes = ["S", "M", "L", "XL"];
 
 const ProductDetailsScreen = () => {
+  const [selectedSize, setSelectedSize] = useState("M");
   const { id } = useLocalSearchParams();
   //Obtain product of dummy data by id
   const product = products.find((p) => p.id.toString() === id);
@@ -26,9 +27,28 @@ const ProductDetailsScreen = () => {
       <Text>Select size</Text>
       <View style={styles.sizes}>
         {sizes.map((size) => (
-          <View key={size} style={styles.size}>
-            <Text style={styles.sizeText}>{size}</Text>
-          </View>
+          <TouchableOpacity
+            onPress={() => setSelectedSize(size)}
+            key={size}
+            style={[
+              styles.size,
+              {
+                backgroundColor:
+                  selectedSize === size ? "gainsboro" : undefined,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sizeText,
+                {
+                  color: selectedSize === size ? "black" : "gray",
+                },
+              ]}
+            >
+              {size}
+            </Text>
+          </TouchableOpacity>
         ))}
       </View>
 
@@ -56,7 +76,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   size: {
-    backgroundColor: "gainsboro",
     width: 50,
     aspectRatio: 1,
     borderRadius: 25,
