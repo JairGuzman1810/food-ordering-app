@@ -19,6 +19,7 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
         source={{
           uri: product.image || defaultPizzaImage,
         }}
+        resizeMode="contain"
       />
       <Text style={styles.title}>{product.name}</Text>
       <Text style={styles.price}>${product.price}</Text>
