@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import Colors from "../constants/Colors";
 import { forwardRef } from "react";
+import { useColorScheme } from "@/src/components/useColorScheme";
 
 type ButtonProps = {
   text: string;
@@ -15,17 +16,24 @@ type ButtonProps = {
 
 const Button = forwardRef<TouchableOpacity | null, ButtonProps>(
   ({ text, isLoading = false, ...touchableProps }, ref) => {
+    const colorScheme = useColorScheme();
+
+    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
     return (
       <TouchableOpacity
         ref={ref}
         {...touchableProps}
-        style={[styles.container, isLoading && styles.disabled]}
+        style={[
+          styles.container,
+          isLoading && styles.disabled,
+          { backgroundColor: colors.tint },
+        ]}
         disabled={isLoading} // Disable button when loading
       >
         {isLoading ? (
-          <ActivityIndicator color="white" size={"small"} /> // Display loading indicator
+          <ActivityIndicator color={colors.textAlt} size={"small"} /> // Display loading indicator
         ) : (
-          <Text style={styles.text}>{text}</Text>
+          <Text style={[styles.text, { color: colors.textAlt }]}>{text}</Text>
         )}
       </TouchableOpacity>
     );
@@ -34,7 +42,6 @@ const Button = forwardRef<TouchableOpacity | null, ButtonProps>(
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.light.tint,
     padding: 15,
     alignItems: "center",
     borderRadius: 100,

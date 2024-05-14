@@ -1,10 +1,12 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { Image, StyleSheet, View, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import products from "@/assets/data/products";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
 import Button from "@/src/components/Button";
+import { Text } from "@/src/components/Themed";
+import { useColorScheme } from "@/src/components/useColorScheme";
 
 const sizes = ["S", "M", "L", "XL"];
 
@@ -14,6 +16,8 @@ const ProductDetailsScreen = () => {
   const { id } = useLocalSearchParams();
   //Obtain product of dummy data by id
   const product = products.find((p) => p.id.toString() === id);
+
+  const colorScheme = useColorScheme();
 
   if (!product) {
     return <Text>Product not found</Text>;
@@ -29,7 +33,12 @@ const ProductDetailsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: Colors[colorScheme ?? "light"].backgroundCard },
+      ]}
+    >
       <Stack.Screen options={{ title: product?.name }} />
       <Image
         style={styles.image}
@@ -72,7 +81,6 @@ export default ProductDetailsScreen;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.light.background,
     padding: 10,
     flex: 1,
   },
