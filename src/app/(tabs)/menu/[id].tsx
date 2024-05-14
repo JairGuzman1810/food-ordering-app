@@ -33,7 +33,7 @@ const ProductDetailsScreen = () => {
     addItem(product, selectedSize);
     setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // Example: Simulating loading for 2 seconds
+    }, 250); // Example: Simulating loading for 2 seconds
   };
 
   return (

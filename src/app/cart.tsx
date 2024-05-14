@@ -17,7 +17,11 @@ const CartScreen = () => {
       ) : (
         <FlatList
           data={items}
-          contentContainerStyle={{ gap: 15, padding: 20 }}
+          contentContainerStyle={{
+            gap: 10,
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+          }}
           //Styles to the columns/between
           renderItem={({ item }) => <CartListItem cartItem={item} />}
         />

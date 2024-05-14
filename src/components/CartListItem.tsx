@@ -25,6 +25,7 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
       <Image
         style={styles.image}
         source={{ uri: cartItem.product.image || defaultPizzaImage }}
+        resizeMode="contain"
       />
       {/* product info */}
       <View style={{ flex: 1 }}>
@@ -40,6 +41,7 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
           onPress={() => updateQuantity(cartItem.id, -1)}
           name="minus"
           color="gray"
+          size={15}
           style={{ padding: 5 }}
         />
         <Text style={styles.quantity}>{cartItem.quantity}</Text>
@@ -47,6 +49,7 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
           onPress={() => updateQuantity(cartItem.id, -1)}
           name="plus"
           color="gray"
+          size={15}
           style={{ padding: 5 }}
         />
       </View>
