@@ -7,11 +7,14 @@ import Colors from "@/src/constants/Colors";
 import Button from "@/src/components/Button";
 import { Text } from "@/src/components/Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";
+import { useCart } from "@providers/CartProvider";
+import { PizzaSize } from "@/src/types";
 
-const sizes = ["S", "M", "L", "XL"];
+const sizes: PizzaSize[] = ["S", "M", "L", "XL"];
 
 const ProductDetailsScreen = () => {
-  const [selectedSize, setSelectedSize] = useState("M");
+  const { addItem } = useCart();
+  const [selectedSize, setSelectedSize] = useState<PizzaSize>("M");
   const [isLoading, setIsLoading] = useState(false);
   const { id } = useLocalSearchParams();
   //Obtain product of dummy data by id
@@ -27,6 +30,7 @@ const ProductDetailsScreen = () => {
     setIsLoading(true);
     // Perform your loading action here
     // After the action is complete, set isLoading back to false
+    addItem(product, selectedSize);
     setTimeout(() => {
       setIsLoading(false);
     }, 2000); // Example: Simulating loading for 2 seconds
@@ -50,6 +54,7 @@ const ProductDetailsScreen = () => {
           <TouchableOpacity
             onPress={() => setSelectedSize(size)}
             key={size}
+            disabled={isLoading}
             style={[
               styles.size,
               {
