@@ -1,17 +1,27 @@
-import { Platform, StyleSheet, View } from "react-native";
+// CartScreen.tsx
+import { FlatList, Platform, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useCart } from "@providers/CartProvider";
-import { Text } from "../components/Themed";
 import { Stack } from "expo-router";
+import CartListItem from "@components/CartListItem";
+import { Text } from "@components/Themed";
 
 const CartScreen = () => {
   const { items } = useCart();
 
   return (
-    <View>
+    <View style={styles.container}>
       <Stack.Screen options={{ title: "Shopping Cart" }} />
-
-      <Text>Cart Items length: {items.length}</Text>
+      {items.length === 0 ? (
+        <Text>No items in the cart</Text>
+      ) : (
+        <FlatList
+          data={items}
+          contentContainerStyle={{ gap: 15, padding: 20 }}
+          //Styles to the columns/between
+          renderItem={({ item }) => <CartListItem cartItem={item} />}
+        />
+      )}
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
   );
@@ -19,4 +29,8 @@ const CartScreen = () => {
 
 export default CartScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
