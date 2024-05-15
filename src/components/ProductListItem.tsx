@@ -2,7 +2,7 @@ import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import React from "react";
 import Colors from "@/src/constants/Colors";
 import { Product } from "@/src/types";
-import { Link } from "expo-router";
+import { Link, useSegments } from "expo-router";
 import { Text } from "./Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";
 
@@ -14,6 +14,9 @@ type ProductListItemProps = {
 };
 
 const ProductListItem = ({ product }: ProductListItemProps) => {
+  //Use to know where are in navigation (workaround)
+  const segments = useSegments();
+
   const colorScheme = useColorScheme();
 
   const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
@@ -21,7 +24,7 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
   return (
     //Navigate specific product
     <Link
-      href={`/menu/${product.id}`}
+      href={`/${segments[0]}/menu/${product.id}`}
       asChild
       style={[styles.container, { backgroundColor: colors.backgroundCard }]}
     >
