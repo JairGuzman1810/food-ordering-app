@@ -23,7 +23,9 @@ const CartScreen = () => {
             paddingVertical: 10,
           }}
           //Styles to the columns/between
-          renderItem={({ item }) => <CartListItem cartItem={item} />}
+          renderItem={({ item }) => (
+            <CartListItem key={item.id} cartItem={item} />
+          )}
         />
       )}
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
