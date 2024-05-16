@@ -15,7 +15,7 @@ export default function MenuStack() {
         options={{
           title: "Menu",
           headerRight: () => (
-            <Link href="/" asChild>
+            <Link href={"/(admin)/menu/create"} asChild>
               <TouchableOpacity
                 style={{ marginRight: 15 }}
                 activeOpacity={0.5} // Set activeOpacity to achieve the opacity change on press
