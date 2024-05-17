@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -23,7 +24,8 @@ const CreateProductScreen: React.FC = () => {
   //get the ID when it is to update the product
   const { id } = useLocalSearchParams();
   const isUpdating = !!id;
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false);
+  const [isLoadingDelete, setIsLoadingDelete] = useState<boolean>(false);
   const [image, setImage] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
@@ -69,11 +71,11 @@ const CreateProductScreen: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoadingSubmit(true);
     // Perform your loading action here
     // After the action is complete, set isLoading back to false
     setTimeout(() => {
-      setIsLoading(false);
+      setIsLoadingSubmit(false);
       setName("");
       setPrice("");
       setImage(null);
@@ -90,11 +92,11 @@ const CreateProductScreen: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoadingSubmit(true);
     // Perform your loading action here
     // After the action is complete, set isLoading back to false
     setTimeout(() => {
-      setIsLoading(false);
+      setIsLoadingSubmit(false);
       setName("");
       setPrice("");
       setImage(null);
@@ -126,6 +128,24 @@ const CreateProductScreen: React.FC = () => {
   const handlePriceChange = (text: string) => {
     setPrice(text);
     setErrors({ ...errors, price: "" }); // Clear price error when user starts typing
+  };
+
+  const confirmDelete = () => {
+    Alert.alert("Confirm", "Are you sure you want to delete this product?", [
+      {
+        text: "Cancel",
+        style: "cancel", // Optional: Add a style for cancel button
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: onDelete,
+      },
+    ]);
+  };
+
+  const onDelete = () => {
+    console.warn("DELETE");
   };
 
   return (
@@ -164,10 +184,15 @@ const CreateProductScreen: React.FC = () => {
 
       <Button
         text={isUpdating ? "Update" : "Create"}
-        style={{ backgroundColor: "gray" }}
-        isLoading={isLoading}
+        isLoading={isLoadingSubmit}
         onPress={onSubmit}
       />
+
+      {isUpdating && (
+        <TouchableOpacity onPress={confirmDelete}>
+          <Text style={[styles.textbtn, { fontSize: 16 }]}>Delete</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
