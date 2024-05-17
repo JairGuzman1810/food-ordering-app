@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Colors from "@/src/constants/Colors";
 import Button from "@/src/components/Button";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import * as ImagePicker from "expo-image-picker";
 
@@ -20,6 +20,9 @@ interface Errors {
 }
 
 const CreateProductScreen: React.FC = () => {
+  //get the ID when it is to update the product
+  const { id } = useLocalSearchParams();
+  const isUpdating = !!id;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [image, setImage] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
@@ -30,7 +33,15 @@ const CreateProductScreen: React.FC = () => {
     image: "",
   });
 
-  const onCreate = () => {
+  const onSubmit = () => {
+    if (isUpdating) {
+      onUpdate();
+    } else {
+      onCreate();
+    }
+  };
+
+  const validateFields = () => {
     const newErrors: Errors = { name: "", price: "", image: "" };
 
     if (!name.trim()) {
@@ -47,6 +58,12 @@ const CreateProductScreen: React.FC = () => {
       newErrors.image = "Image is required";
     }
 
+    return newErrors;
+  };
+
+  const onCreate = () => {
+    const newErrors = validateFields();
+
     if (Object.values(newErrors).some((error) => error)) {
       setErrors(newErrors);
       return;
@@ -61,6 +78,29 @@ const CreateProductScreen: React.FC = () => {
       setPrice("");
       setImage(null);
       setErrors({ name: "", price: "", image: "" }); // Clear errors
+      console.warn("Created product");
+    }, 1000); // Example: Simulating loading for 1 second
+  };
+
+  const onUpdate = () => {
+    const newErrors = validateFields();
+
+    if (Object.values(newErrors).some((error) => error)) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
+    // Perform your loading action here
+    // After the action is complete, set isLoading back to false
+    setTimeout(() => {
+      setIsLoading(false);
+      setName("");
+      setPrice("");
+      setImage(null);
+      setErrors({ name: "", price: "", image: "" }); // Clear errors
+
+      console.warn("Updated product");
     }, 1000); // Example: Simulating loading for 1 second
   };
 
@@ -90,7 +130,9 @@ const CreateProductScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: "Create Product" }} />
+      <Stack.Screen
+        options={{ title: isUpdating ? "Update Product" : "Create Product" }}
+      />
 
       <Image
         source={{ uri: image || defaultPizzaImage }}
@@ -121,10 +163,10 @@ const CreateProductScreen: React.FC = () => {
       {errors.price ? <Text style={styles.error}>{errors.price}</Text> : null}
 
       <Button
-        text="Create"
+        text={isUpdating ? "Update" : "Create"}
         style={{ backgroundColor: "gray" }}
         isLoading={isLoading}
-        onPress={onCreate}
+        onPress={onSubmit}
       />
     </View>
   );

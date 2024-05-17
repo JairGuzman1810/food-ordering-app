@@ -1,6 +1,6 @@
 import { Image, StyleSheet, View, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import products from "@/assets/data/products";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
@@ -9,6 +9,7 @@ import { Text } from "@/src/components/Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { useCart } from "@providers/CartProvider";
 import { PizzaSize } from "@/src/types";
+import { FontAwesome } from "@expo/vector-icons";
 
 const ProductDetailsScreen = () => {
   const { id } = useLocalSearchParams();
@@ -30,6 +31,25 @@ const ProductDetailsScreen = () => {
         { backgroundColor: Colors[colorScheme ?? "light"].backgroundCard },
       ]}
     >
+      <Stack.Screen
+        options={{
+          title: "Menu",
+          headerRight: () => (
+            <Link href={`/(admin)/menu/create?id=${id}`} asChild>
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                activeOpacity={0.5} // Set activeOpacity to achieve the opacity change on press
+              >
+                <FontAwesome
+                  name="pencil"
+                  size={20}
+                  color={Colors[colorScheme ?? "light"].tint}
+                />
+              </TouchableOpacity>
+            </Link>
+          ),
+        }}
+      />
       <Stack.Screen options={{ title: product?.name }} />
       <Image
         style={styles.image}

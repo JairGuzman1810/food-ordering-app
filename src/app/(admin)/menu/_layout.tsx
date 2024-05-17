@@ -30,26 +30,6 @@ export default function MenuStack() {
           ),
         }}
       />
-      <Stack.Screen
-        name="[id]"
-        options={{
-          title: "Menu",
-          headerRight: () => (
-            <Link href="/" asChild>
-              <TouchableOpacity
-                style={{ marginRight: 15 }}
-                activeOpacity={0.5} // Set activeOpacity to achieve the opacity change on press
-              >
-                <FontAwesome
-                  name="pencil"
-                  size={20}
-                  color={Colors[colorScheme ?? "light"].tint}
-                />
-              </TouchableOpacity>
-            </Link>
-          ),
-        }}
-      />
     </Stack>
   );
 }
