@@ -1,22 +1,37 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Colors from "@/src/constants/Colors";
 import Button from "@/src/components/Button";
 import { Stack } from "expo-router";
+import { defaultPizzaImage } from "@/src/components/ProductListItem";
+import * as ImagePicker from "expo-image-picker";
 
 interface Errors {
   name: string;
   price: string;
+  image: string;
 }
 
 const CreateProductScreen: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [image, setImage] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
-  const [errors, setErrors] = useState<Errors>({ name: "", price: "" });
+  const [errors, setErrors] = useState<Errors>({
+    name: "",
+    price: "",
+    image: "",
+  });
 
   const onCreate = () => {
-    const newErrors: Errors = { ...errors };
+    const newErrors: Errors = { name: "", price: "", image: "" };
 
     if (!name.trim()) {
       newErrors.name = "Name is required";
@@ -24,10 +39,12 @@ const CreateProductScreen: React.FC = () => {
 
     if (!price.trim()) {
       newErrors.price = "Price is required";
+    } else if (isNaN(parseFloat(price))) {
+      newErrors.price = "Price is not a number";
     }
 
-    if (isNaN(parseFloat(price))) {
-      newErrors.price = "Price is not a number";
+    if (!image) {
+      newErrors.image = "Image is required";
     }
 
     if (Object.values(newErrors).some((error) => error)) {
@@ -42,8 +59,23 @@ const CreateProductScreen: React.FC = () => {
       setIsLoading(false);
       setName("");
       setPrice("");
-      setErrors({ name: "", price: "" }); // Clear errors
+      setImage(null);
+      setErrors({ name: "", price: "", image: "" }); // Clear errors
     }, 1000); // Example: Simulating loading for 1 second
+  };
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      setErrors({ ...errors, image: "" }); // Clear image error when user selects an image
+    }
   };
 
   const handleNameChange = (text: string) => {
@@ -58,7 +90,16 @@ const CreateProductScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: "Create new product" }} />
+      <Stack.Screen options={{ title: "Create Product" }} />
+
+      <Image
+        source={{ uri: image || defaultPizzaImage }}
+        style={styles.image}
+      />
+      <TouchableOpacity onPress={pickImage}>
+        <Text style={styles.textbtn}>Select image</Text>
+      </TouchableOpacity>
+      {errors.image ? <Text style={styles.error}>{errors.image}</Text> : null}
 
       <Text style={styles.label}>Name</Text>
       <TextInput
@@ -67,7 +108,7 @@ const CreateProductScreen: React.FC = () => {
         onChangeText={handleNameChange}
         style={[styles.input, { marginBottom: errors.name ? 0 : 20 }]}
       />
-      {errors.name ? <Text style={[styles.error]}>{errors.name}</Text> : null}
+      {errors.name ? <Text style={styles.error}>{errors.name}</Text> : null}
 
       <Text style={styles.label}>Price ($)</Text>
       <TextInput
@@ -96,6 +137,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 10,
+  },
+  image: {
+    width: "50%",
+    aspectRatio: 1,
+    alignSelf: "center",
+    borderRadius: 99,
+    borderColor: "black",
+  },
+  textbtn: {
+    alignSelf: "center",
+    fontWeight: "bold",
+    color: Colors.light.tint,
+    marginVertical: 10,
   },
   label: { color: "gray", fontSize: 16 },
   input: {
