@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -9,6 +10,7 @@ import {
 import Colors from "@/src/constants/Colors";
 import Button from "@/src/components/Button";
 import { Link, Stack } from "expo-router";
+import { supabase } from "@/src/lib/supabase";
 
 interface Errors {
   email: string;
@@ -41,24 +43,23 @@ const SignInScreen: React.FC = () => {
 
     return newErrors;
   };
-  const onLogin = () => {
+  async function SignIn() {
     const newErrors = validateFields();
 
     if (Object.values(newErrors).some((error) => error)) {
       setErrors(newErrors);
       return;
     }
-
     setIsLoading(true);
-    // Perform your loading action here
-    // After the action is complete, set isLoading back to false
-    setTimeout(() => {
-      setIsLoading(false);
-      setEmail("");
-      setErrors({ email: "", password: "" }); // Clear errors
-      console.warn("Created product");
-    }, 1000); // Example: Simulating loading for 1 second
-  };
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) Alert.alert(error.message);
+    setIsLoading(false);
+  }
 
   const handleEmailChange = (text: string) => {
     setEmail(text);
@@ -96,7 +97,7 @@ const SignInScreen: React.FC = () => {
         <Text style={styles.error}>{errors.password}</Text>
       ) : null}
 
-      <Button text={"Sign in"} isLoading={isLoading} onPress={onLogin} />
+      <Button text={"Sign in"} isLoading={isLoading} onPress={SignIn} />
 
       <Link href={"/sign-up"} asChild>
         <TouchableOpacity>

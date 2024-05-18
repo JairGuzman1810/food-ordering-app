@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -9,6 +10,7 @@ import {
 import Colors from "@/src/constants/Colors";
 import Button from "@/src/components/Button";
 import { Link, Stack } from "expo-router";
+import { supabase } from "@/src/lib/supabase";
 
 interface Errors {
   email: string;
@@ -42,7 +44,7 @@ const SignUpScreen = () => {
     return newErrors;
   };
 
-  const onCreate = () => {
+  async function signUpWithEmail() {
     const newErrors = validateFields();
 
     if (Object.values(newErrors).some((error) => error)) {
@@ -51,15 +53,15 @@ const SignUpScreen = () => {
     }
 
     setIsLoading(true);
-    // Perform your loading action here
-    // After the action is complete, set isLoading back to false
-    setTimeout(() => {
-      setIsLoading(false);
-      setEmail("");
-      setErrors({ email: "", password: "" }); // Clear errors
-      console.warn("Created product");
-    }, 1000); // Example: Simulating loading for 1 second
-  };
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) Alert.alert(error.message);
+    setIsLoading(false);
+  }
 
   const handleEmailChange = (text: string) => {
     setEmail(text);
@@ -100,7 +102,7 @@ const SignUpScreen = () => {
       <Button
         text={"Create account"}
         isLoading={isLoading}
-        onPress={onCreate}
+        onPress={signUpWithEmail}
       />
 
       <Link href={"/sign-in"} asChild>
