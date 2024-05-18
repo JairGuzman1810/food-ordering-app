@@ -1,7 +1,8 @@
-import { View, Text } from "react-native";
+import { View, Text, StatusBar } from "react-native";
 import React from "react";
 import { Link } from "expo-router";
 import Button from "../components/Button";
+import Colors from "../constants/Colors";
 
 const index = () => {
   return (
@@ -15,6 +16,7 @@ const index = () => {
       <Link href={"/sign-in"} asChild>
         <Button text="Sign in" />
       </Link>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.tint} />
     </View>
   );
 };
