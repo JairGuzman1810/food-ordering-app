@@ -21,13 +21,9 @@ const OrderListItem = ({ order }: OrderListItemProps) => {
   const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
 
   return (
-    <Link
-      href={`/${segments[0]}/orders/${order.id}`}
-      style={styles.link}
-      asChild
-    >
-      <View style={styles.container}>
-        <TouchableOpacity
+    <Link href={`/${segments[0]}/orders/${order.id}`} asChild>
+      <TouchableOpacity>
+        <View
           style={[styles.touchable, { backgroundColor: colors.backgroundCard }]}
         >
           <View style={styles.infoContainer}>
@@ -37,8 +33,8 @@ const OrderListItem = ({ order }: OrderListItemProps) => {
             </Text>
           </View>
           <Text style={styles.status}>{order.status}</Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
     </Link>
   );
 };
@@ -46,12 +42,6 @@ const OrderListItem = ({ order }: OrderListItemProps) => {
 export default OrderListItem;
 
 const styles = StyleSheet.create({
-  link: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
   touchable: {
     flexDirection: "row",
     alignItems: "center",
