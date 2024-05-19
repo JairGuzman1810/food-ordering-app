@@ -1,10 +1,21 @@
-import { View, Text, StatusBar } from "react-native";
+import { View, Text, StatusBar, ActivityIndicator } from "react-native";
 import React from "react";
-import { Link } from "expo-router";
-import Button from "../components/Button";
-import Colors from "../constants/Colors";
+import { Link, Redirect } from "expo-router";
+import Button from "@components/Button";
+import Colors from "@/src/constants/Colors";
+import { useAuth } from "@providers/AuthProvider";
+import { supabase } from "../lib/supabase";
 
 const index = () => {
+  const { session, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  if (!session) {
+    return <Redirect href={"/sign-in"} />;
+  }
   return (
     <View style={{ flex: 1, justifyContent: "center", padding: 10 }}>
       <Link href={"/(user)"} asChild>
@@ -16,6 +27,9 @@ const index = () => {
       <Link href={"/sign-in"} asChild>
         <Button text="Sign in" />
       </Link>
+
+      <Button onPress={() => supabase.auth.signOut()} text="Sign out" />
+
       <StatusBar barStyle="light-content" backgroundColor={Colors.light.tint} />
     </View>
   );
