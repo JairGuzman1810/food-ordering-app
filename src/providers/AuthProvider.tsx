@@ -29,13 +29,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchSession = async () => {
-      //we pass data to session
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setSession(session);
-      //get profile data from supabase tables
+    const fetchUserData = async (session: Session | null) => {
       if (session) {
         const { data } = await supabase
           .from("profiles")
@@ -45,16 +39,29 @@ export default function AuthProvider({ children }: PropsWithChildren) {
 
         setProfile(data || null);
       }
+    };
 
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
+      await fetchUserData(session);
       setIsLoading(false);
     };
 
-    fetchSession();
+    getSession();
 
-    //Helps to redirect to sign in when sign out
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        await fetchUserData(session);
+        setSession(session);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   return (
