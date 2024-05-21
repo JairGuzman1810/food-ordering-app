@@ -35,3 +35,13 @@ export type Order = {
 
   order_items?: OrderItem[];
 };
+
+export type Profile = {
+  avatar_url: string | null;
+  full_name: string | null;
+  group: string; // Assuming group is always present and is a string
+  id: string;
+  updated_at: string | null; // Assuming updated_at is a string representing a date
+  username: string | null;
+  website: string | null;
+};
