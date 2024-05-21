@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   FlatList,
   View,
@@ -6,8 +6,6 @@ import {
   RefreshControl,
 } from "react-native";
 import ProductListItem from "@components/ProductListItem";
-import { supabase } from "@/src/lib/supabase";
-import { Product } from "@/src/types";
 import Colors from "@/src/constants/Colors";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { Text } from "@/src/components/Themed";
