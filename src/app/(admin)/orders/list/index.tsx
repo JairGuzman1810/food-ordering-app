@@ -5,7 +5,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import ProductListItem from "@components/ProductListItem";
 import OrderListItem from "@/src/components/OrderListItem";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { useAdminOrdersList } from "@/src/api/orders";
@@ -16,6 +15,7 @@ import { Text } from "@/src/components/Themed";
 export default function OrdersScreen() {
   const colorScheme = useColorScheme();
   const { data: orders, isLoading, error, refetch } = useAdminOrdersList();
+  console.log(orders);
   const [refreshing, setRefreshing] = useState(false);
 
   const refreshData = async () => {
@@ -47,9 +47,7 @@ export default function OrdersScreen() {
             <FlatList
               data={orders}
               renderItem={({ item }) => <OrderListItem order={item} />}
-              numColumns={2}
               contentContainerStyle={{ gap: 10, padding: 10 }}
-              columnWrapperStyle={{ gap: 10 }}
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
