@@ -86,3 +86,20 @@ export const useUpdateProduct = () => {
     },
   });
 };
+
+export const useDeleteProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    async mutationFn(id: number) {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    async onSuccess() {
+      // Force refresh of the products query and the specific product query
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
