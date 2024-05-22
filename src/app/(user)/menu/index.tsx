@@ -4,6 +4,7 @@ import {
   View,
   ActivityIndicator,
   RefreshControl,
+  StyleSheet,
 } from "react-native";
 import ProductListItem from "@components/ProductListItem";
 import Colors from "@/src/constants/Colors";
@@ -24,32 +25,22 @@ export default function MenuScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       {isLoading ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
+        <View style={styles.subcontainer}>
           <ActivityIndicator
             size="large"
             color={Colors[colorScheme ?? "light"].tint}
           />
         </View>
       ) : error ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
+        <View style={styles.subcontainer}>
           <Text>Error: {error.message}</Text>
         </View>
       ) : (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
           {products && products.length === 0 ? (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <View style={styles.subcontainer}>
               <Text>No products available</Text>
             </View>
           ) : (
@@ -72,3 +63,14 @@ export default function MenuScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  subcontainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

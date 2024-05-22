@@ -28,15 +28,7 @@ export type OrderItem = {
   quantity: number;
 };
 
-export type Order = {
-  id: number;
-  created_at: string;
-  total: number;
-  user_id: string;
-  status: OrderStatus;
-
-  order_items?: OrderItem[];
-};
+export type Order = Tables<"orders">;
 
 export type Profile = {
   avatar_url: string | null;
