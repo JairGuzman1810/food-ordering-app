@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -10,10 +10,14 @@ import {
 } from "react-native";
 import Colors from "@/src/constants/Colors";
 import Button from "@/src/components/Button";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import * as ImagePicker from "expo-image-picker";
-import { useInsertProduct } from "@/src/api/products";
+import {
+  useInsertProduct,
+  useProduct,
+  useUpdateProduct,
+} from "@/src/api/products";
 
 interface Errors {
   name: string;
@@ -25,7 +29,12 @@ const CreateProductScreen: React.FC = () => {
   //get the ID when it is to update the product
   const { id } = useLocalSearchParams();
   const isUpdating = !!id;
+  const productId = Array.isArray(id) ? id[0] : id || ""; // Take the first element if it's an array, or use an empty string if it's undefined
+
   const { mutate: insertProduct } = useInsertProduct();
+  const { mutate: updateProduct } = useUpdateProduct();
+  const { data: updatingProduct } = useProduct(parseInt(productId)); // Perform null check and convert ID to string if it exists
+
   const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false);
   const [image, setImage] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
@@ -35,6 +44,16 @@ const CreateProductScreen: React.FC = () => {
     price: "",
     image: "",
   });
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (updatingProduct) {
+      setImage(updatingProduct.image);
+      setName(updatingProduct.name);
+      setPrice(updatingProduct?.price.toString());
+    }
+  }, [updatingProduct]);
 
   const onSubmit = () => {
     if (isUpdating) {
@@ -104,12 +123,16 @@ const CreateProductScreen: React.FC = () => {
     setIsLoadingSubmit(true);
     // Perform your loading action here
     // After the action is complete, set isLoading back to false
-    setTimeout(() => {
-      setIsLoadingSubmit(false);
-      resetFields();
-
-      console.warn("Updated product");
-    }, 1000); // Example: Simulating loading for 1 second
+    updateProduct(
+      { id, name, price: parseFloat(price), image },
+      {
+        onSuccess: () => {
+          setIsLoadingSubmit(false);
+          resetFields();
+          router.back();
+        },
+      }
+    );
   };
 
   const pickImage = async () => {
