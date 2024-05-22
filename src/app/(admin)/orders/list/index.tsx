@@ -14,8 +14,12 @@ import { Text } from "@/src/components/Themed";
 
 export default function OrdersScreen() {
   const colorScheme = useColorScheme();
-  const { data: orders, isLoading, error, refetch } = useAdminOrdersList();
-  console.log(orders);
+  const {
+    data: orders,
+    isLoading,
+    error,
+    refetch,
+  } = useAdminOrdersList({ archived: false });
   const [refreshing, setRefreshing] = useState(false);
 
   const refreshData = async () => {
