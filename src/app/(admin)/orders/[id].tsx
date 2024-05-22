@@ -1,15 +1,12 @@
 import {
-  Image,
   StyleSheet,
   View,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import orders from "@/assets/data/orders";
-import { defaultPizzaImage } from "@/src/components/ProductListItem";
+import React from "react";
+import { Stack, useLocalSearchParams } from "expo-router";
 import Colors from "@/src/constants/Colors";
 import { Text } from "@/src/components/Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";

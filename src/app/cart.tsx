@@ -8,7 +8,7 @@ import { Text } from "@components/Themed";
 import Button from "@components/Button";
 
 const CartScreen = () => {
-  const { items, total } = useCart();
+  const { items, total, checkout, isLoading } = useCart();
 
   return (
     <View style={styles.container}>
@@ -31,7 +31,7 @@ const CartScreen = () => {
       {total > 0 ? (
         <>
           <Text style={styles.total}>Total: ${total}</Text>
-          <Button text="Checkout" />
+          <Button onPress={checkout} isLoading={isLoading} text="Checkout" />
         </>
       ) : null}
 

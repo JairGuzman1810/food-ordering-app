@@ -1,18 +1,21 @@
-import {
+import React, {
   createContext,
   useContext,
-  ReactNode,
-  PropsWithChildren,
   useState,
+  PropsWithChildren,
 } from "react";
 import { CartItem, Product } from "@/src/types";
 import { randomUUID } from "expo-crypto";
+import { useInsertOrder } from "../api/orders";
+import { useRouter } from "expo-router";
 
 type CartType = {
   items: CartItem[];
   addItem: (product: Product, size: CartItem["size"]) => void;
   updateQuantity: (itemId: String, amount: -1 | 1) => void;
   total: number;
+  checkout: () => void;
+  isLoading: boolean;
 };
 
 const CartContext = createContext<CartType>({
@@ -20,25 +23,27 @@ const CartContext = createContext<CartType>({
   addItem: () => {},
   updateQuantity: () => {},
   total: 0,
+  checkout: () => {},
+  isLoading: false,
 });
 
 const CartProvider = ({ children }: PropsWithChildren) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const { mutate: insertOrder } = useInsertOrder();
 
   const addItem = (product: Product, size: CartItem["size"]) => {
     const existingCartItem = items.find(
       (c) => c.product_id === product.id && c.size === size
     );
 
-    //check if exist
     if (existingCartItem) {
       updateQuantity(existingCartItem.id, 1);
-      //if not, then create a new
     } else {
-      //if yes, then update existing
-
       const newCartItem: CartItem = {
-        id: randomUUID(), // generate
+        id: randomUUID(),
         product,
         product_id: product.id,
         size,
@@ -49,7 +54,6 @@ const CartProvider = ({ children }: PropsWithChildren) => {
   };
 
   const updateQuantity = (itemId: String, amount: -1 | 1) => {
-    //check if quantity > 0, then remove it
     const updateItems = items
       .map((item) =>
         item.id !== itemId
@@ -61,14 +65,46 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     setItems(updateItems);
   };
 
-  // Calculate the total of all items in the cart
   const total = items.reduce((sum, item) => {
-    // Multiply the product price by the quantity and add to the accumulator
     return sum + item.product.price * item.quantity;
-  }, 0); // 0 is the initial value of the accumulator
+  }, 0);
+
+  const clearCart = () => {
+    setItems([]);
+  };
+
+  const checkout = () => {
+    setIsLoading(true);
+    insertOrder(
+      { total },
+      {
+        onSuccess: (data) => {
+          setIsLoading(false);
+          clearCart();
+          router.push(`/(user)/orders`);
+          //its needed to fix issue navigation
+          setTimeout(() => {
+            router.push(`/(user)/orders/${data.id}`);
+          }, 100); // Adjust the timeout as needed
+        },
+        onError: () => {
+          setIsLoading(false);
+        },
+      }
+    );
+  };
 
   return (
-    <CartContext.Provider value={{ items, addItem, updateQuantity, total }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        updateQuantity,
+        total,
+        checkout,
+        isLoading,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
