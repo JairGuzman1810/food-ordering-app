@@ -13,6 +13,7 @@ import Button from "@/src/components/Button";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import * as ImagePicker from "expo-image-picker";
+import { useInsertProduct } from "@/src/api/products";
 
 interface Errors {
   name: string;
@@ -24,8 +25,8 @@ const CreateProductScreen: React.FC = () => {
   //get the ID when it is to update the product
   const { id } = useLocalSearchParams();
   const isUpdating = !!id;
+  const { mutate: insertProduct } = useInsertProduct();
   const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false);
-  const [isLoadingDelete, setIsLoadingDelete] = useState<boolean>(false);
   const [image, setImage] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
@@ -56,11 +57,18 @@ const CreateProductScreen: React.FC = () => {
       newErrors.price = "Price is not a number";
     }
 
-    if (!image) {
+    /*if (!image) {
       newErrors.image = "Image is required";
-    }
+    }*/
 
     return newErrors;
+  };
+
+  const resetFields = () => {
+    setName("");
+    setPrice("");
+    setImage(null);
+    setErrors({ name: "", price: "", image: "" }); // Clear errors
   };
 
   const onCreate = () => {
@@ -74,14 +82,15 @@ const CreateProductScreen: React.FC = () => {
     setIsLoadingSubmit(true);
     // Perform your loading action here
     // After the action is complete, set isLoading back to false
-    setTimeout(() => {
-      setIsLoadingSubmit(false);
-      setName("");
-      setPrice("");
-      setImage(null);
-      setErrors({ name: "", price: "", image: "" }); // Clear errors
-      console.warn("Created product");
-    }, 1000); // Example: Simulating loading for 1 second
+    insertProduct(
+      { name, price: parseFloat(price), image },
+      {
+        onSuccess: () => {
+          setIsLoadingSubmit(false);
+          resetFields();
+        },
+      }
+    );
   };
 
   const onUpdate = () => {
@@ -97,10 +106,7 @@ const CreateProductScreen: React.FC = () => {
     // After the action is complete, set isLoading back to false
     setTimeout(() => {
       setIsLoadingSubmit(false);
-      setName("");
-      setPrice("");
-      setImage(null);
-      setErrors({ name: "", price: "", image: "" }); // Clear errors
+      resetFields();
 
       console.warn("Updated product");
     }, 1000); // Example: Simulating loading for 1 second
