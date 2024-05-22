@@ -2,6 +2,7 @@ import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
+  StyleSheet,
   View,
 } from "react-native";
 import ProductListItem from "@components/ProductListItem";
@@ -24,24 +25,20 @@ export default function MenuScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       {isLoading ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
+        <View style={styles.subcontainer}>
           <ActivityIndicator
             size="large"
             color={Colors[colorScheme ?? "light"].tint}
           />
         </View>
       ) : error ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
+        <View style={styles.subcontainer}>
           <Text>Error: {error.message}</Text>
         </View>
       ) : (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
           {products && products.length === 0 ? (
             <View
               style={{
@@ -72,3 +69,14 @@ export default function MenuScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  subcontainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
