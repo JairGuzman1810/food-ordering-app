@@ -14,12 +14,16 @@ import Button from "@/src/components/Button";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 import {
   useDeleteProduct,
   useInsertProduct,
   useProduct,
   useUpdateProduct,
 } from "@/src/api/products";
+import { randomUUID } from "expo-crypto";
+import { supabase } from "@/src/lib/supabase";
+import { decode } from "base64-arraybuffer";
 
 interface Errors {
   name: string;
@@ -69,6 +73,10 @@ const CreateProductScreen: React.FC = () => {
   const validateFields = () => {
     const newErrors: Errors = { name: "", price: "", image: "" };
 
+    if (!image) {
+      newErrors.image = "Image is required";
+    }
+
     if (!name.trim()) {
       newErrors.name = "Name is required";
     }
@@ -89,7 +97,7 @@ const CreateProductScreen: React.FC = () => {
     setErrors({ name: "", price: "", image: "" });
   };
 
-  const onCreate = () => {
+  const onCreate = async () => {
     const newErrors = validateFields();
 
     if (Object.values(newErrors).some((error) => error)) {
@@ -98,8 +106,11 @@ const CreateProductScreen: React.FC = () => {
     }
 
     setIsLoadingSubmit(true);
+
+    const imagePath = await uploadImage();
+
     insertProduct(
-      { name, price: parseFloat(price), image },
+      { name, price: parseFloat(price), image: imagePath },
       {
         onSuccess: () => {
           setIsLoadingSubmit(false);
@@ -109,7 +120,7 @@ const CreateProductScreen: React.FC = () => {
     );
   };
 
-  const onUpdate = () => {
+  const onUpdate = async () => {
     const newErrors = validateFields();
 
     if (Object.values(newErrors).some((error) => error)) {
@@ -118,8 +129,11 @@ const CreateProductScreen: React.FC = () => {
     }
 
     setIsLoadingSubmit(true);
+
+    const imagePath = await updateImage();
+
     updateProduct(
-      { id, name, price: parseFloat(price), image },
+      { id, name, price: parseFloat(price), image: imagePath },
       {
         onSuccess: () => {
           setIsLoadingSubmit(false);
@@ -141,6 +155,63 @@ const CreateProductScreen: React.FC = () => {
       setImage(result.assets[0].uri);
       setErrors({ ...errors, image: "" });
     }
+  };
+
+  const uploadImage = async () => {
+    if (!image?.startsWith("file://")) {
+      return image; // If the image is not a new local file, return the existing image path
+    }
+
+    const base64 = await FileSystem.readAsStringAsync(image, {
+      encoding: "base64",
+    });
+
+    const filePath = `${randomUUID()}.png`;
+    const contentType = "image/png";
+
+    const { data, error } = await supabase.storage
+      .from("product-images")
+      .upload(filePath, decode(base64), { contentType });
+
+    if (error) {
+      console.error("Error uploading image: ", error);
+      return null;
+    }
+
+    return data.path;
+  };
+
+  const updateImage = async () => {
+    if (
+      !image ||
+      !image.startsWith("file://") ||
+      !updatingProduct ||
+      (!image.endsWith(".png") && !image.endsWith(".PNG"))
+    ) {
+      return image; // If the image is not a new local file, updatingProduct is not defined, or it's not a PNG file, return the existing image path
+    }
+
+    const base64 = await FileSystem.readAsStringAsync(image, {
+      encoding: "base64",
+    });
+
+    const contentType = "image/png";
+
+    if (!updatingProduct.image) {
+      console.error("Error: Existing product image path is missing.");
+      return null;
+    }
+
+    const { data, error } = await supabase.storage
+      .from("product-images")
+      .update(updatingProduct.image, decode(base64), { contentType });
+
+    if (error) {
+      console.error("Error updating image: ", error);
+      return null;
+    }
+
+    return updatingProduct.image;
   };
 
   const handleNameChange = (text: string) => {
