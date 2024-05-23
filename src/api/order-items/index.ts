@@ -1,6 +1,6 @@
 import { supabase } from "@/src/lib/supabase";
 import { TablesInsert } from "./../../types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 export const useInsertOrderItems = () => {
   return useMutation({

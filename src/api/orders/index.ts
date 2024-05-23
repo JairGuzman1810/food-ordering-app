@@ -1,3 +1,4 @@
+import { TablesUpdate } from "@/src/database.types";
 import { TablesInsert } from "./../../types";
 import { supabase } from "@/src/lib/supabase";
 import { useAuth } from "@/src/providers/AuthProvider";
@@ -56,7 +57,6 @@ export const useOrderDetails = (id: number) => {
       if (error) {
         throw new Error(error.message);
       }
-      console.log(data);
       return data;
     },
   });
@@ -82,6 +82,38 @@ export const useInsertOrder = () => {
     async onSuccess() {
       await queryClient.invalidateQueries({
         queryKey: ["orders", { userId }],
+      });
+    },
+  });
+};
+
+export const useUpdateOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    async mutationFn({
+      id,
+      updatedFields,
+    }: {
+      id: number;
+      updatedFields: TablesUpdate<"orders">;
+    }) {
+      const { error, data: updatedOrder } = await supabase
+        .from("orders")
+        .update(updatedFields)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return updatedOrder;
+    },
+    async onSuccess(_, { id }) {
+      // Force refresh of the products query and the specific product query
+      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["order " + id],
       });
     },
   });

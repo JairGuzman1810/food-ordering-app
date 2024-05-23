@@ -9,7 +9,6 @@ import React, { useState } from "react";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
-import Button from "@/src/components/Button";
 import { Text } from "@/src/components/Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { useCart } from "@providers/CartProvider";

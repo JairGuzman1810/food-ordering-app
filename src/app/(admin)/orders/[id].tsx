@@ -5,7 +5,7 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import Colors from "@/src/constants/Colors";
 import { Text } from "@/src/components/Themed";
@@ -14,24 +14,34 @@ import { useColorScheme } from "@/src/components/useColorScheme";
 import OrderListItem from "@/src/components/OrderListItem";
 import OrderItemListItem from "@/src/components/OrderItemListItem";
 import { OrderStatus } from "@/src/types";
-import { useOrderDetails } from "@/src/api/orders";
+import { useOrderDetails, useUpdateOrder } from "@/src/api/orders";
 
 const statuses: OrderStatus[] = ["New", "Cooking", "Delivering", "Delivered"];
 
 export default function ProductDetailsScreen() {
   const { id } = useLocalSearchParams();
   //Obtain product of dummy data by id
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const { mutate: updateOrder } = useUpdateOrder();
 
   const orderId = Array.isArray(id) ? id[0] : id || ""; // Take the first element if it's an array, or use an empty string if it's undefined
 
-  const {
-    data: order,
-    error,
-    isLoading,
-    refetch,
-  } = useOrderDetails(parseInt(orderId));
+  const { data: order, error, isLoading } = useOrderDetails(parseInt(orderId));
 
   const colorScheme = useColorScheme();
+
+  const updateStatus = (status: string) => {
+    setIsUpdating(true);
+    updateOrder(
+      { id: parseInt(orderId), updatedFields: { status } },
+      {
+        onSuccess: () => {
+          setIsUpdating(false);
+        },
+      }
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -69,35 +79,46 @@ export default function ProductDetailsScreen() {
               />
               <Text style={styles.statusTitle}>Status</Text>
               <View style={styles.statuses}>
-                {statuses.map((status) => (
-                  <TouchableOpacity
-                    onPress={() => console.warn("Status updated to: " + status)}
-                    key={status}
-                    style={[
-                      styles.status,
-                      {
-                        backgroundColor:
-                          order.status === status
-                            ? Colors.light.tint
-                            : undefined,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.statusText,
-                        {
-                          color:
-                            order.status === status
-                              ? "white"
-                              : Colors.light.tint,
-                        },
-                      ]}
-                    >
-                      {status}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                {isUpdating ? (
+                  <View style={{ paddingVertical: 2.55 }}>
+                    <ActivityIndicator
+                      size={"large"}
+                      color={Colors[colorScheme ?? "light"].tint}
+                    />
+                  </View>
+                ) : (
+                  <>
+                    {statuses.map((status) => (
+                      <TouchableOpacity
+                        onPress={() => updateStatus(status)}
+                        key={status}
+                        style={[
+                          styles.status,
+                          {
+                            backgroundColor:
+                              order.status === status
+                                ? Colors.light.tint
+                                : undefined,
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusText,
+                            {
+                              color:
+                                order.status === status
+                                  ? "white"
+                                  : Colors.light.tint,
+                            },
+                          ]}
+                        >
+                          {status}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
               </View>
             </>
           )}
