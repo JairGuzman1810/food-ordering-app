@@ -4,10 +4,11 @@ import React, {
   useState,
   PropsWithChildren,
 } from "react";
-import { CartItem, Product } from "@/src/types";
+import { CartItem, Product, Tables } from "@/src/types";
 import { randomUUID } from "expo-crypto";
 import { useInsertOrder } from "../api/orders";
 import { useRouter } from "expo-router";
+import { useInsertOrderItems } from "../api/order-items";
 
 type CartType = {
   items: CartItem[];
@@ -33,6 +34,7 @@ const CartProvider = ({ children }: PropsWithChildren) => {
   const router = useRouter();
 
   const { mutate: insertOrder } = useInsertOrder();
+  const { mutate: insertOrderItems } = useInsertOrderItems();
 
   const addItem = (product: Product, size: CartItem["size"]) => {
     const existingCartItem = items.find(
@@ -78,20 +80,36 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     insertOrder(
       { total },
       {
-        onSuccess: (data) => {
-          setIsLoading(false);
-          clearCart();
-          router.push(`/(user)/orders`);
-          //its needed to fix issue navigation
-          setTimeout(() => {
-            router.push(`/(user)/orders/${data.id}`);
-          }, 100); // Adjust the timeout as needed
-        },
+        onSuccess: saveOrderItems,
         onError: () => {
           setIsLoading(false);
         },
       }
     );
+  };
+
+  const saveOrderItems = (order: Tables<"orders">) => {
+    const orderItems = items.map((cartItem) => ({
+      order_id: order.id,
+      product_id: cartItem.product_id,
+      quantity: cartItem.quantity,
+      size: cartItem.size,
+    }));
+
+    insertOrderItems(orderItems, {
+      onSuccess: () => {
+        setIsLoading(false);
+        clearCart();
+        router.push(`/(user)/orders`);
+        //its needed to fix issue navigation
+        setTimeout(() => {
+          router.push(`/(user)/orders/${order.id}`);
+        }, 100); // Adjust the timeout as needed
+      },
+      onError(error) {
+        console.warn(error);
+      },
+    });
   };
 
   return (

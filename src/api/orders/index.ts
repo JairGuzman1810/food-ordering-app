@@ -41,7 +41,7 @@ export const useMyOrdersList = () => {
 
 export const useOrderDetails = (id: number) => {
   return useQuery({
-    queryKey: ["orders " + id],
+    queryKey: ["order " + id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
@@ -75,8 +75,9 @@ export const useInsertOrder = () => {
       return newProduct;
     },
     async onSuccess() {
-      // Force refresh of the products query
-      await queryClient.invalidateQueries({ queryKey: ["products"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["orders", { userId }],
+      });
     },
   });
 };
