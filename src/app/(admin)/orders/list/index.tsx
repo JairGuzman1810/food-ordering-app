@@ -8,9 +8,12 @@ import {
 import OrderListItem from "@/src/components/OrderListItem";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { useAdminOrdersList } from "@/src/api/orders";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Colors from "@/src/constants/Colors";
 import { Text } from "@/src/components/Themed";
+import { supabase } from "@/src/lib/supabase";
+import { useQueryClient } from "@tanstack/react-query";
+import { useInsertOrderSubscription } from "@/src/api/orders/subscriptions";
 
 export default function OrdersScreen() {
   const colorScheme = useColorScheme();
@@ -21,6 +24,9 @@ export default function OrdersScreen() {
     refetch,
   } = useAdminOrdersList({ archived: false });
   const [refreshing, setRefreshing] = useState(false);
+
+  //Realtime data
+  useInsertOrderSubscription();
 
   const refreshData = async () => {
     setRefreshing(true);

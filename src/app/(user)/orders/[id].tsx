@@ -8,11 +8,14 @@ import { useColorScheme } from "@/src/components/useColorScheme";
 import OrderListItem from "@/src/components/OrderListItem";
 import OrderItemListItem from "@/src/components/OrderItemListItem";
 import { useOrderDetails } from "@/src/api/orders";
+import { useUpdateOrderStatusSubscription } from "@/src/api/orders/subscriptions";
 
 export default function ProductDetailsScreen() {
   const { id } = useLocalSearchParams();
 
   const orderId = Array.isArray(id) ? id[0] : id || ""; // Take the first element if it's an array, or use an empty string if it's undefined
+
+  useUpdateOrderStatusSubscription(parseInt(orderId));
 
   const {
     data: order,
