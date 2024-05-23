@@ -31,7 +31,7 @@ interface Errors {
   image: string;
 }
 
-const CreateProductScreen: React.FC = () => {
+const CreateProductScreen = () => {
   const { id } = useLocalSearchParams();
   const isUpdating = !!id;
   const productId = Array.isArray(id) ? id[0] : id || "";
@@ -53,22 +53,6 @@ const CreateProductScreen: React.FC = () => {
   });
 
   const router = useRouter();
-
-  useEffect(() => {
-    if (updatingProduct) {
-      setImage(updatingProduct.image);
-      setName(updatingProduct.name);
-      setPrice(updatingProduct?.price.toString());
-    }
-  }, [updatingProduct]);
-
-  const onSubmit = () => {
-    if (isUpdating) {
-      onUpdate();
-    } else {
-      onCreate();
-    }
-  };
 
   const validateFields = () => {
     const newErrors: Errors = { name: "", price: "", image: "" };
@@ -95,6 +79,71 @@ const CreateProductScreen: React.FC = () => {
     setPrice("");
     setImage(null);
     setErrors({ name: "", price: "", image: "" });
+  };
+
+  useEffect(() => {
+    if (updatingProduct) {
+      setImage(updatingProduct.image);
+      setName(updatingProduct.name);
+      setPrice(updatingProduct?.price.toString());
+    }
+  }, [updatingProduct]);
+
+  const onSubmit = () => {
+    if (isUpdating) {
+      onUpdate();
+    } else {
+      onCreate();
+    }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      setErrors({ ...errors, image: "" });
+    }
+  };
+
+  const handleNameChange = (text: string) => {
+    setName(text);
+    setErrors({ ...errors, name: "" });
+  };
+
+  const handlePriceChange = (text: string) => {
+    setPrice(text);
+    setErrors({ ...errors, price: "" });
+  };
+
+  const confirmDelete = () => {
+    Alert.alert("Confirm", "Are you sure you want to delete this product?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: onDelete,
+      },
+    ]);
+  };
+
+  const onDelete = () => {
+    setIsLoadingDelete(true);
+    deleteProduct(parseFloat(productId), {
+      onSuccess: () => {
+        removeImage(updatingProduct?.image || "").then(() => {
+          setIsLoadingDelete(false);
+          router.replace("/(admin)");
+        });
+      },
+    });
   };
 
   const onCreate = async () => {
@@ -142,19 +191,6 @@ const CreateProductScreen: React.FC = () => {
         },
       }
     );
-  };
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      setErrors({ ...errors, image: "" });
-    }
   };
 
   const uploadImage = async () => {
@@ -214,38 +250,13 @@ const CreateProductScreen: React.FC = () => {
     return updatingProduct.image;
   };
 
-  const handleNameChange = (text: string) => {
-    setName(text);
-    setErrors({ ...errors, name: "" });
-  };
-
-  const handlePriceChange = (text: string) => {
-    setPrice(text);
-    setErrors({ ...errors, price: "" });
-  };
-
-  const confirmDelete = () => {
-    Alert.alert("Confirm", "Are you sure you want to delete this product?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: onDelete,
-      },
-    ]);
-  };
-
-  const onDelete = () => {
-    setIsLoadingDelete(true);
-    deleteProduct(parseFloat(productId), {
-      onSuccess: () => {
-        setIsLoadingDelete(false);
-        router.replace("/(admin)");
-      },
-    });
+  const removeImage = async (imagePath: string) => {
+    try {
+      await supabase.storage.from("product-images").remove([imagePath]);
+      console.log("Image removed successfully from the bucket.");
+    } catch (error) {
+      console.error("Error removing image from the bucket: ", error);
+    }
   };
 
   return (
