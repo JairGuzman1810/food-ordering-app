@@ -5,6 +5,7 @@ import { Product } from "@/src/types";
 import { Link, useSegments } from "expo-router";
 import { Text } from "./Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";
+import RemoteImage from "./RemoteImage";
 
 export const defaultPizzaImage =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
@@ -29,12 +30,11 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
       style={[styles.container, { backgroundColor: colors.backgroundCard }]}
     >
       <TouchableOpacity>
-        <Image
+        <RemoteImage
           style={styles.image}
           //If image exist use product.image if not, defaultPizzaImage
-          source={{
-            uri: product.image || defaultPizzaImage,
-          }}
+          path={product?.image}
+          fallback={defaultPizzaImage}
           resizeMode="contain"
         />
         <Text style={styles.title}>{product.name}</Text>

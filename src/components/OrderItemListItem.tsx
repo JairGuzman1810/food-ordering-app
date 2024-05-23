@@ -5,6 +5,7 @@ import { Text } from "@/src/components/Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import Colors from "@/src/constants/Colors";
 import { Product, Tables } from "@/src/types";
+import RemoteImage from "./RemoteImage";
 
 type OrderItemListItemProps = {
   orderItem: { products: Product | null } & Tables<"order_items">;
@@ -24,10 +25,11 @@ const OrderItemListItem = ({ orderItem }: OrderItemListItemProps) => {
       ]}
     >
       {/* Use optional chaining to access properties */}
-      <Image
+      <RemoteImage
         style={styles.image}
         resizeMode="contain"
-        source={{ uri: product?.image || defaultPizzaImage }}
+        path={product?.image}
+        fallback={defaultPizzaImage}
       />
       <View style={{ flex: 1 }}>
         {/* Use optional chaining to access properties */}

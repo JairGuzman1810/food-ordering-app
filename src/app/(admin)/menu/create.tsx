@@ -24,6 +24,7 @@ import {
 import { randomUUID } from "expo-crypto";
 import { supabase } from "@/src/lib/supabase";
 import { decode } from "base64-arraybuffer";
+import RemoteImage from "@/src/components/RemoteImage";
 
 interface Errors {
   name: string;
@@ -218,13 +219,8 @@ const CreateProductScreen = () => {
   };
 
   const updateImage = async () => {
-    if (
-      !image ||
-      !image.startsWith("file://") ||
-      !updatingProduct ||
-      (!image.endsWith(".png") && !image.endsWith(".PNG"))
-    ) {
-      return image; // If the image is not a new local file, updatingProduct is not defined, or it's not a PNG file, return the existing image path
+    if (!image || !image.startsWith("file://") || !updatingProduct) {
+      return image; // If the image is not a new local file or updatingProduct is not defined, return the existing image path
     }
 
     const base64 = await FileSystem.readAsStringAsync(image, {
@@ -247,13 +243,26 @@ const CreateProductScreen = () => {
       return null;
     }
 
-    return updatingProduct.image;
+    // Generate the new filename with randomUUID
+    const newFileName = `${randomUUID()}.png`;
+
+    // Move the updated file to the final path with the new name
+    const { error: moveError } = await supabase.storage
+      .from("product-images")
+      .move(updatingProduct.image, newFileName);
+
+    if (moveError) {
+      console.error("Error moving image to new path: ", moveError);
+      return null;
+    }
+
+    // Return the new image path
+    return newFileName;
   };
 
   const removeImage = async (imagePath: string) => {
     try {
       await supabase.storage.from("product-images").remove([imagePath]);
-      console.log("Image removed successfully from the bucket.");
     } catch (error) {
       console.error("Error removing image from the bucket: ", error);
     }
@@ -270,11 +279,19 @@ const CreateProductScreen = () => {
               title: isUpdating ? "Update Product" : "Create Product",
             }}
           />
+          {isUpdating && !image?.startsWith("file://") ? (
+            <RemoteImage
+              style={styles.image}
+              path={image}
+              fallback={defaultPizzaImage}
+            />
+          ) : (
+            <Image
+              source={{ uri: image || defaultPizzaImage }}
+              style={styles.image}
+            />
+          )}
 
-          <Image
-            source={{ uri: image || defaultPizzaImage }}
-            style={styles.image}
-          />
           <TouchableOpacity onPress={pickImage}>
             <Text style={styles.textbtn}>Select image</Text>
           </TouchableOpacity>

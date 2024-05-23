@@ -7,6 +7,7 @@ import { useColorScheme } from "@/src/components/useColorScheme";
 import { Text } from "./Themed";
 import { useCart } from "@providers/CartProvider";
 import { FontAwesome } from "@expo/vector-icons";
+import RemoteImage from "./RemoteImage";
 
 type CartListItemProps = {
   cartItem: CartItem;
@@ -22,9 +23,10 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
       style={[styles.container, { backgroundColor: colors.backgroundCard }]}
     >
       {/* image */}
-      <Image
+      <RemoteImage
         style={styles.image}
-        source={{ uri: cartItem.product.image || defaultPizzaImage }}
+        path={cartItem.product.image}
+        fallback={defaultPizzaImage}
         resizeMode="contain"
       />
       {/* product info */}

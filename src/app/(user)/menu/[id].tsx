@@ -15,6 +15,7 @@ import { useColorScheme } from "@/src/components/useColorScheme";
 import { useCart } from "@providers/CartProvider";
 import { PizzaSize } from "@/src/types";
 import { useProduct } from "@/src/api/products";
+import RemoteImage from "@/src/components/RemoteImage";
 
 const sizes: PizzaSize[] = ["S", "M", "L", "XL"];
 
@@ -83,9 +84,10 @@ const ProductDetailsScreen = () => {
       {!isLoading && !error && product && (
         <>
           <Stack.Screen options={{ title: product.name }} />
-          <Image
+          <RemoteImage
             style={styles.image}
-            source={{ uri: product.image || defaultPizzaImage }}
+            path={product?.image}
+            fallback={defaultPizzaImage}
           />
           <Text>Select size</Text>
           <View style={styles.sizes}>
