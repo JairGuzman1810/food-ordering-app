@@ -4,14 +4,17 @@ import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import { Text } from "@/src/components/Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import Colors from "@/src/constants/Colors";
-import { OrderItem } from "@/src/types";
+import { Product, Tables } from "@/src/types";
 
 type OrderItemListItemProps = {
-  orderItem: OrderItem;
+  orderItem: { products: Product | null } & Tables<"order_items">;
 };
 
 const OrderItemListItem = ({ orderItem }: OrderItemListItemProps) => {
   const colorScheme = useColorScheme();
+
+  // Guard against potential null value for orderItem.products
+  const product = orderItem.products;
 
   return (
     <View
@@ -20,15 +23,17 @@ const OrderItemListItem = ({ orderItem }: OrderItemListItemProps) => {
         { backgroundColor: Colors[colorScheme ?? "light"].backgroundCard },
       ]}
     >
+      {/* Use optional chaining to access properties */}
       <Image
         style={styles.image}
         resizeMode="contain"
-        source={{ uri: orderItem.products.image || defaultPizzaImage }}
+        source={{ uri: product?.image || defaultPizzaImage }}
       />
       <View style={{ flex: 1 }}>
-        <Text style={styles.title}>{orderItem.products.name}</Text>
+        {/* Use optional chaining to access properties */}
+        <Text style={styles.title}>{product?.name}</Text>
         <View style={styles.subcontainer}>
-          <Text style={styles.price}>${orderItem.products.price}</Text>
+          <Text style={styles.price}>${product?.price}</Text>
           <Text>Size: {orderItem.size}</Text>
         </View>
       </View>

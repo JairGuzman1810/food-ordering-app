@@ -48,13 +48,15 @@ export const useOrderDetails = (id: number) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("*")
+        //We get the ordersItems data and product for the data of orderitemlistitem
+        .select("*, order_items(*, products(*))")
         .eq("id", id)
         .single();
 
       if (error) {
         throw new Error(error.message);
       }
+      console.log(data);
       return data;
     },
   });
