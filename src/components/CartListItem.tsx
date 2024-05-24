@@ -1,4 +1,4 @@
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React from "react";
 import { CartItem } from "@/src/types";
 import { defaultPizzaImage } from "./ProductListItem";
