@@ -43,6 +43,77 @@ create trigger on_auth_user_created
 
 ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
 
+--
+-- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+INSERT INTO "storage"."buckets" ("id", "name", "owner", "created_at", "updated_at", "public", "avif_autodetection", "file_size_limit", "allowed_mime_types", "owner_id") VALUES
+	('avatars', 'avatars', NULL, '2024-05-20 23:26:12.659423+00', '2024-05-20 23:26:12.659423+00', false, false, NULL, NULL, NULL),
+	('product-images', 'product-images', NULL, '2024-05-23 16:25:20.11766+00', '2024-05-23 16:25:20.11766+00', false, false, NULL, NULL, NULL);
+
+
+--
+-- Data for Name: objects; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+INSERT INTO "storage"."objects" ("id", "bucket_id", "name", "owner", "created_at", "updated_at", "last_accessed_at", "metadata", "version", "owner_id") VALUES
+	('bb9a9194-9617-444c-ae2d-2dd93ffa7658', 'product-images', '.emptyFolderPlaceholder', NULL, '2024-05-23 19:00:06.863715+00', '2024-05-23 19:00:06.863715+00', '2024-05-23 19:00:06.863715+00', '{"eTag": "\"d41d8cd98f00b204e9800998ecf8427e\"", "size": 0, "mimetype": "application/octet-stream", "cacheControl": "max-age=3600", "lastModified": "2024-05-23T19:00:06.000Z", "contentLength": 0, "httpStatusCode": 200}', '62eaab35-6b0b-4b93-8ef9-d6fbeb0f3b1e', NULL);
+
+
+--
+-- Data for Name: s3_multipart_uploads; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+create policy "Allow authenticated users ALL 16wiy3a_0"
+on "storage"."objects"
+as permissive
+for select
+to authenticated
+using ((bucket_id = 'product-images'::text));
+
+
+create policy "Allow authenticated users ALL 16wiy3a_1"
+on "storage"."objects"
+as permissive
+for insert
+to authenticated
+with check ((bucket_id = 'product-images'::text));
+
+
+create policy "Allow authenticated users ALL 16wiy3a_2"
+on "storage"."objects"
+as permissive
+for update
+to authenticated
+using ((bucket_id = 'product-images'::text));
+
+
+create policy "Allow authenticated users ALL 16wiy3a_3"
+on "storage"."objects"
+as permissive
+for delete
+to authenticated
+using ((bucket_id = 'product-images'::text));
+
+
+create policy "Anyone can upload an avatar."
+on "storage"."objects"
+as permissive
+for insert
+to public
+with check ((bucket_id = 'avatars'::text));
+
+
+create policy "Avatar images are publicly accessible."
+on "storage"."objects"
+as permissive
+for select
+to public
+using ((bucket_id = 'avatars'::text));
+
+
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
