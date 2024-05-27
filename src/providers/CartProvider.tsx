@@ -9,6 +9,7 @@ import { randomUUID } from "expo-crypto";
 import { useInsertOrder } from "../api/orders";
 import { useRouter } from "expo-router";
 import { useInsertOrderItems } from "../api/order-items";
+import { initialisePaymentSheet } from "../lib/stripe";
 
 type CartType = {
   items: CartItem[];
@@ -75,8 +76,16 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     setItems([]);
   };
 
-  const checkout = () => {
+  const checkout = async () => {
     setIsLoading(true);
+
+    const payed = await initialisePaymentSheet(Math.floor(total * 100));
+
+    if (!payed) {
+      setIsLoading(false);
+      return;
+    }
+
     insertOrder(
       { total },
       {
