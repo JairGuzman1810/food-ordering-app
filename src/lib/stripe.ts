@@ -19,16 +19,15 @@ const fetchPaymentSheetParams = async (amount: number) => {
 };
 
 export const initialisePaymentSheet = async (amount: number) => {
-  console.log("Initialising payment sheet, for: ", amount);
-
-  const { paymentIntent, publishableKey } = await fetchPaymentSheetParams(
-    amount
-  );
-  if (!paymentIntent || !publishableKey) return;
+  const { paymentIntent, publishableKey, customer, ephemeralKey } =
+    await fetchPaymentSheetParams(amount);
+  if (!paymentIntent || !publishableKey || !customer || !ephemeralKey) return;
 
   const { error } = await initPaymentSheet({
     merchantDisplayName: "Jair Guzman",
     paymentIntentClientSecret: paymentIntent,
+    customerId: customer,
+    customerEphemeralKeySecret: ephemeralKey,
     // Set `allowsDelayedPaymentMethods` to true if your business can handle payment
     //methods that complete payment after a delay, like SEPA Debit and Sofort.
     allowsDelayedPaymentMethods: true,
