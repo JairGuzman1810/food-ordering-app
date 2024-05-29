@@ -10,6 +10,7 @@ import { useInsertOrder } from "../api/orders";
 import { useRouter } from "expo-router";
 import { useInsertOrderItems } from "../api/order-items";
 import { initialisePaymentSheet } from "../lib/stripe";
+import { notifyAdminNewOrder } from "../lib/notifications";
 
 type CartType = {
   items: CartItem[];
@@ -107,6 +108,7 @@ const CartProvider = ({ children }: PropsWithChildren) => {
 
     insertOrderItems(orderItems, {
       onSuccess: () => {
+        notifyAdminNewOrder(order);
         setIsLoading(false);
         clearCart();
         router.push(`/(user)/orders`);

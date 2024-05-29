@@ -15,6 +15,10 @@ import OrderListItem from "@/src/components/OrderListItem";
 import OrderItemListItem from "@/src/components/OrderItemListItem";
 import { OrderStatus } from "@/src/types";
 import { useOrderDetails, useUpdateOrder } from "@/src/api/orders";
+import {
+  notifyUserOrderUpdate,
+  notifyAdminNewOrder,
+} from "@/src/lib/notifications";
 
 const statuses: OrderStatus[] = ["New", "Cooking", "Delivering", "Delivered"];
 
@@ -36,7 +40,10 @@ export default function ProductDetailsScreen() {
     updateOrder(
       { id: parseInt(orderId), updatedFields: { status } },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          if (order) {
+            notifyUserOrderUpdate({ ...order, status });
+          }
           setIsUpdating(false);
         },
       }
